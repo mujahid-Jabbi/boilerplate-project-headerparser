@@ -1,10 +1,25 @@
-// index.js
-// where your node app starts
-
-// init project
-require('dotenv').config();
+const requestIp = require('request-ip')
 var express = require('express');
 var app = express();
+
+var ipMiddleware = function(req, res, next){
+  const clientIp = requestIp.getClientIp(req);
+  next();
+};
+
+app.get('/api/whoami', function (req, res) {
+ var ipaddress = req.clientIp;
+ var language = req.acceptsLanguages();
+ var software = req.get('User-agent');
+ res.json({ipaddress: "ipaddress", language: language[0], software:software});
+});
+
+app.use(express.static('public'));
+app.get("/", function(req, res){
+  res.sendFile(__dirname + '/views/index.html');
+});
+
+
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC
@@ -23,8 +38,7 @@ app.get('/', function (req, res) {
 app.get('/api/hello', function (req, res) {
   res.json({ greeting: 'hello API' });
 });
-
 // listen for requests :)
-var listener = app.listen(process.env.PORT || 3000, function () {
+var listener = app.listen(process.env.PORT || 5000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
